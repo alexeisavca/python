@@ -11,15 +11,15 @@ jobs:
   test-and-lint:
     runs-on: ubuntu-latest
   steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/checkout@v4 # Folosește tool-ul oficial GitHub Actions
-        with:
-          python-version: '3.9.6'
-      - name: Install dependencies
-        run: |
-          pip install -f requirements.txt
-      - name: Run tests
-        run: |
-          pytest
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v4 # Folosește tool-ul oficial GitHub Actions
+      with:
+        python-version: '3.9.6'
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+    - name: Run tests
+      run: |
+        pytest
