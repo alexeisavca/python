@@ -1,4 +1,5 @@
 import pytest
+import itertools
 from myreduce import myreduce
 from random import randint
 from functools import reduce
@@ -45,5 +46,13 @@ def test_nontrivial_with_initial():
     expected = reduce(sum, input, initial)
 
     result = myreduce(sum, input, initial)
+
+    assert result == expected
+
+def test_iter():
+    input = [randint(1, 100) for _ in range(5)]
+    expected = reduce(sum, iter(input))
+
+    result = myreduce(sum, iter(input))
 
     assert result == expected
