@@ -3,6 +3,7 @@ from sqlmodel import create_engine, SQLModel, Field, select, Session
 import bcrypt
 from typing import List
 from sqlalchemy.orm import load_only
+from contextlib import asynccontextmanager
 
 app = FastAPI()
 
@@ -27,7 +28,10 @@ class User(UserBase, table=True):
     __tablename__ = "user"
     password: str
 
-SQLModel.metadata.create_all(engine)
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    SQLModel.metadata.create_all(engine)
+    yield
 
 @app.get("/users", response_model=List[UserBase], status_code=status.HTTP_200_OK)
 def get_users(db: Session = Depends(get_db)):
