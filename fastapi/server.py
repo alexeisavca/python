@@ -5,7 +5,7 @@ from typing import List
 from sqlalchemy.orm import load_only
 from contextlib import asynccontextmanager
 
-app = FastAPI()
+
 
 engine = create_engine("sqlite:///database.db", connect_args={"check_same_thread": False})
 
@@ -33,7 +33,9 @@ async def lifespan(app: FastAPI):
     SQLModel.metadata.create_all(engine)
     yield
 
-@app.get("/users", response_model=List[UserBase], status_code=status.HTTP_200_OK)
+app = FastAPI(lifespan=lifespan)
+
+@app.get("/user", response_model=List[UserBase], status_code=status.HTTP_200_OK)
 def get_users(db: Session = Depends(get_db)):
     statement = select(User).options(load_only(User.email))
     users = db.exec(statement).all()
