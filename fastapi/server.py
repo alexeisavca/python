@@ -6,8 +6,14 @@ from sqlalchemy.orm import load_only
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone, timedelta
 import jwt
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
+class Settings(BaseSettings):
+    JWT_SECRET: str
 
+    model_config = SettingsConfigDict(env_file=".env")
+
+settings = Settings()
 
 engine = create_engine("sqlite:///database.db", connect_args={"check_same_thread": False})
 
@@ -39,7 +45,7 @@ def create_access_token(data: dict):
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=3600)
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, "SECRET", algorithm="HS256")
+    return jwt.encode(to_encode, settings.JWT_SECRET, algorithm="HS256")
 
 app = FastAPI(lifespan=lifespan)
 
