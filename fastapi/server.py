@@ -4,6 +4,8 @@ import bcrypt
 from typing import List
 from sqlalchemy.orm import load_only
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone, timedelta
+import jwt
 
 
 
@@ -33,6 +35,12 @@ async def lifespan(app: FastAPI):
     SQLModel.metadata.create_all(engine)
     yield
 
+def create_access_token(data: dict):
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=3600)
+    to_encode.update({"exp": expire})
+    return jwt.encode(to_encode, "SECRET", algorithm="HS256")
+
 app = FastAPI(lifespan=lifespan)
 
 @app.get("/user", response_model=List[UserBase], status_code=status.HTTP_200_OK)
@@ -59,3 +67,7 @@ def register_user(user_data: UserRegister, db: Session = Depends(get_db)):
 
     db.add(new_user)
     db.commit()
+
+    return {
+        "jwt": create_access_token(data={"sub": new_user.email})
+    }
